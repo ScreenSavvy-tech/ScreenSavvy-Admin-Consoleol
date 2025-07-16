@@ -10,7 +10,6 @@ import './App.css';
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
-  // ✅ Apply saved theme on load
   useLayoutEffect(() => {
     const saved = localStorage.getItem('theme');
     const isDark = saved === 'dark';

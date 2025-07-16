@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type Challenge = {
   id: number;
@@ -40,28 +40,72 @@ function Challengesandrewards() {
   const [rewardEditId, setRewardEditId] = useState<number | null>(null);
 
   const [now, setNow] = useState(Date.now());
+  const notifiedIdsRef = useRef<number[]>([]);
 
   useEffect(() => {
+    const saved = localStorage.getItem('challenges');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setChallenges(parsed);
+      } catch {}
+    }
+
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
     const interval = setInterval(() => {
       setNow(Date.now());
-      setChallenges(prev => prev.filter(ch => ch.expiresAt > Date.now()));
+      setChallenges(prev => {
+        const nowTime = Date.now();
+        const active: Challenge[] = [];
+        const expired: Challenge[] = [];
+
+        for (let ch of prev) {
+          if (ch.expiresAt > nowTime) {
+            active.push(ch);
+          } else {
+            expired.push(ch);
+          }
+        }
+
+        expired.forEach(ch => {
+          if (!notifiedIdsRef.current.includes(ch.id)) {
+            showNotification(ch.title);
+            notifiedIdsRef.current.push(ch.id);
+          }
+        });
+
+        localStorage.setItem('challenges', JSON.stringify(active));
+        return active;
+      });
     }, 1000);
+
     return () => clearInterval(interval);
   }, []);
 
-  // Challenge handlers
+  const showNotification = (challengeTitle: string) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(`Challenge expired: ${challengeTitle}`);
+    }
+  };
+
   const handleAddOrUpdate = () => {
     const points = parseInt(challengePoints);
     if (!title.trim() || isNaN(points)) return;
-
     const durationMs = parseDurationToMs(duration);
 
     if (editingId !== null) {
-      setChallenges(prev =>
-        prev.map(ch =>
-          ch.id === editingId ? { ...ch, title, rules, goal, duration, points, expiresAt: Date.now() + durationMs } : ch
-        )
-      );
+      setChallenges(prev => {
+        const updated = prev.map(ch =>
+          ch.id === editingId
+            ? { ...ch, title, rules, goal, duration, points, expiresAt: Date.now() + durationMs }
+            : ch
+        );
+        localStorage.setItem('challenges', JSON.stringify(updated));
+        return updated;
+      });
       setEditingId(null);
     } else {
       const newChallenge: Challenge = {
@@ -73,7 +117,9 @@ function Challengesandrewards() {
         points,
         expiresAt: Date.now() + durationMs,
       };
-      setChallenges([...challenges, newChallenge]);
+      const updatedChallenges = [...challenges, newChallenge];
+      setChallenges(updatedChallenges);
+      localStorage.setItem('challenges', JSON.stringify(updatedChallenges));
     }
 
     setTitle('');
@@ -102,11 +148,14 @@ function Challengesandrewards() {
   };
 
   const handleDelete = (id: number) => {
-    setChallenges(prev => prev.filter(ch => ch.id !== id));
+    setChallenges(prev => {
+      const updated = prev.filter(ch => ch.id !== id);
+      localStorage.setItem('challenges', JSON.stringify(updated));
+      return updated;
+    });
     if (editingId === id) handleCancel();
   };
 
-  // Reward handlers
   const handleAddOrUpdateReward = () => {
     const points = parseInt(rewardPoints);
     if (!rewardName.trim() || isNaN(points)) return;
@@ -146,9 +195,7 @@ function Challengesandrewards() {
     }
   };
 
-  // Helper to parse duration string to milliseconds
   const parseDurationToMs = (durationStr: string): number => {
-    // Simple parser assuming format like '1d', '2h', '30m', '45s'
     const regex = /(\d+)([dhms])/g;
     let match;
     let ms = 0;
@@ -156,18 +203,10 @@ function Challengesandrewards() {
       const value = parseInt(match[1]);
       const unit = match[2];
       switch (unit) {
-        case 'd':
-          ms += value * 86400000;
-          break;
-        case 'h':
-          ms += value * 3600000;
-          break;
-        case 'm':
-          ms += value * 60000;
-          break;
-        case 's':
-          ms += value * 1000;
-          break;
+        case 'd': ms += value * 86400000; break;
+        case 'h': ms += value * 3600000; break;
+        case 'm': ms += value * 60000; break;
+        case 's': ms += value * 1000; break;
       }
     }
     return ms;
@@ -178,16 +217,14 @@ function Challengesandrewards() {
       <h2 style={{ marginBottom: '1rem' }}>Challenges & Rewards</h2>
 
       <div style={{ display: 'flex', gap: '4rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        {/* Challenge Form and List */}
         <section style={{ marginBottom: '2rem', maxWidth: '600px' }}>
           <h3>{editingId ? 'Edit Challenge' : 'Create New Challenge'}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
             <input type="text" placeholder="Challenge Title" value={title} onChange={(e) => setTitle(e.target.value)} />
             <input type="text" placeholder="Rules" value={rules} onChange={(e) => setRules(e.target.value)} />
             <input type="text" placeholder="Goal" value={goal} onChange={(e) => setGoal(e.target.value)} />
-            <input type="text" placeholder="Duration" value={duration} onChange={(e) => setDuration(e.target.value)} />
+            <input type="text" placeholder="Duration (e.g. 1d 3h 20m)" value={duration} onChange={(e) => setDuration(e.target.value)} />
             <input type="number" placeholder="Points" value={challengePoints} onChange={(e) => setChallengePoints(e.target.value)} />
-
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button style={btn} onClick={handleAddOrUpdate}>
                 {editingId ? 'Update Challenge' : 'Add Challenge'}
@@ -196,7 +233,6 @@ function Challengesandrewards() {
             </div>
           </div>
 
-          {/* Challenge List */}
           {challenges.length > 0 && (
             <section style={{ marginTop: '3rem' }}>
               <h3>Existing Challenges</h3>
@@ -205,7 +241,9 @@ function Challengesandrewards() {
                   <li key={ch.id} style={{ marginBottom: '1rem' }}>
                     <strong>{ch.title}</strong> – {ch.points} pts – Goal: {ch.goal}, Duration: {ch.duration}
                     <br />
-                    <span style={{ fontStyle: 'italic', color: '#555' }}>Time Left: {formatTimeLeft(ch.expiresAt - now)}</span>
+                    <span style={{ fontStyle: 'italic', color: '#555' }}>
+                      Time Left: {formatTimeLeft(ch.expiresAt - now)}
+                    </span>
                     <br />
                     Rules: {ch.rules}
                     <div>
@@ -219,13 +257,11 @@ function Challengesandrewards() {
           )}
         </section>
 
-        {/* Rewards Manager */}
         <section style={{ maxWidth: '600px' }}>
           <h3>{rewardEditId ? 'Edit Reward' : 'Add Reward'}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
             <input type="text" placeholder="Reward Name" value={rewardName} onChange={(e) => setRewardName(e.target.value)} />
             <input type="number" placeholder="Points Required" value={rewardPoints} onChange={(e) => setRewardPoints(e.target.value)} />
-
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button style={btn} onClick={handleAddOrUpdateReward}>
                 {rewardEditId ? 'Update Reward' : 'Add Reward'}
