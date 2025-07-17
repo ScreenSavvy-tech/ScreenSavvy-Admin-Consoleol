@@ -1,21 +1,25 @@
 import { useEffect, useState } from 'react';
 
 function Settings() {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem('theme') === 'dark';
-  });
-
-  const [isMaintenanceMode, setIsMaintenanceMode] = useState(() => {
-    return localStorage.getItem('maintenance') === 'true';
-  });
+  // === General Settings ===
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(() => localStorage.getItem('maintenance') === 'true');
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
 
-  const [conversionRate, setConversionRate] = useState(1); // 1 min = X points
-  const [maxDailyPoints, setMaxDailyPoints] = useState(250); // max points per day
-  const [challengeCooldown, setChallengeCooldown] = useState(2); // in hours
+  const [conversionRate, setConversionRate] = useState(1);
+  const [maxDailyPoints, setMaxDailyPoints] = useState(250);
+  const [challengeCooldown, setChallengeCooldown] = useState(2);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [rewardsEnabled, setRewardsEnabled] = useState(true);
+  const [challengesEnabled, setChallengesEnabled] = useState(true);
+  const [minAppVersion, setMinAppVersion] = useState('1.0.0');
+  const [selectedCohort, setSelectedCohort] = useState('All Users');
+
+  // === Uploads ===
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const theme = isDarkMode ? 'dark' : 'light';
@@ -28,146 +32,209 @@ function Settings() {
     localStorage.setItem('maintenance', String(isMaintenanceMode));
   }, [isMaintenanceMode]);
 
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    setMediaFiles((prev) => [...prev, ...files]);
+  };
+
+  const handleClosePreview = () => setPreviewIndex(null);
+
   return (
     <div className="page-content">
       {isMaintenanceMode && (
-        <div style={{
-          backgroundColor: 'orange',
-          padding: '0.5rem',
-          marginBottom: '1rem',
-          textAlign: 'center',
-          fontWeight: 'bold'
-        }}>
+        <div style={{ backgroundColor: 'orange', padding: '0.5rem', marginBottom: '1rem', textAlign: 'center', fontWeight: 'bold' }}>
           Maintenance Mode Active
         </div>
       )}
 
       <h2 style={{ marginBottom: '1rem' }}>Settings</h2>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '500px' }}>
-        {/* Theme toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span>Light/Dark Theme</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={isDarkMode}
-              onChange={() => setIsDarkMode(!isDarkMode)}
-            />
-            <span className="slider"></span>
-          </label>
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', flexWrap: 'wrap' }}>
+        {/* === Left Column === */}
+        <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '500px' }}>
+          <SettingToggle label="Light/Dark Theme" value={isDarkMode} onChange={() => setIsDarkMode(!isDarkMode)} />
+          <SettingToggle
+            label="Maintenance Mode"
+            value={isMaintenanceMode}
+            onChange={() => {
+              if (!isMaintenanceMode) setShowPasswordPrompt(true);
+              else setIsMaintenanceMode(false);
+            }}
+          />
 
-        {/* Maintenance toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span>Maintenance Mode</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={isMaintenanceMode}
-              onChange={() => {
-                if (!isMaintenanceMode) {
-                  setShowPasswordPrompt(true);
-                } else {
-                  setIsMaintenanceMode(false);
-                }
-              }}
-            />
-            <span className="slider"></span>
-          </label>
-        </div>
+          {showPasswordPrompt && (
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <input
+                type="password"
+                placeholder="Enter admin password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+              />
+              <button
+                onClick={() => {
+                  if (adminPassword === 'admin') {
+                    setIsMaintenanceMode(true);
+                    setShowPasswordPrompt(false);
+                    setAdminPassword('');
+                  } else {
+                    alert('Incorrect password.');
+                  }
+                }}
+              >Confirm</button>
+              <button onClick={() => { setShowPasswordPrompt(false); setAdminPassword(''); }}>Cancel</button>
+            </div>
+          )}
 
-        {showPasswordPrompt && (
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <input
-              type="password"
-              placeholder="Enter admin password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-            />
-            <button
-              onClick={() => {
-                if (adminPassword === 'admin') {
-                  setIsMaintenanceMode(true);
-                  setShowPasswordPrompt(false);
-                  setAdminPassword('');
-                } else {
-                  alert('Incorrect password.');
-                }
-              }}
-            >
-              Confirm
-            </button>
-            <button
-              onClick={() => {
-                setShowPasswordPrompt(false);
-                setAdminPassword('');
-              }}
-            >
-              Cancel
-            </button>
+          <SettingSlider label={`Point Conversion Rate (1 min = ${conversionRate} pts)`} value={conversionRate} onChange={setConversionRate} />
+          <SettingInput label="Max Daily Points per User" value={maxDailyPoints} onChange={setMaxDailyPoints} />
+          <SettingInput label="Cooldown Between Challenges (hrs)" value={challengeCooldown} onChange={setChallengeCooldown} />
+          <SettingToggle label="Push Notifications" value={pushNotifications} onChange={() => setPushNotifications(!pushNotifications)} />
+          <SettingToggle label="Email Notifications" value={emailNotifications} onChange={() => setEmailNotifications(!emailNotifications)} />
+
+          <hr />
+          <h3>Feature Flags & Version Control</h3>
+          <SettingToggle label="Enable Rewards Feature" value={rewardsEnabled} onChange={() => setRewardsEnabled(!rewardsEnabled)} />
+          <SettingToggle label="Enable Challenges Feature" value={challengesEnabled} onChange={() => setChallengesEnabled(!challengesEnabled)} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label>Min App Version Required</label>
+            <input type="text" value={minAppVersion} onChange={(e) => setMinAppVersion(e.target.value)} style={{ width: '100px' }} />
           </div>
-        )}
-
-        {/* New settings below */}
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <label style={{ marginBottom: '0.3rem' }}>
-            Point Conversion Rate (1 minute = {conversionRate} points)
-          </label>
-          <input
-            type="range"
-            min={1}
-            max={100}
-            value={conversionRate}
-            onChange={(e) => setConversionRate(parseInt(e.target.value))}
-          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label>Target Cohort</label>
+            <select value={selectedCohort} onChange={(e) => setSelectedCohort(e.target.value)} style={{ width: '150px' }}>
+              <option>All Users</option>
+              <option>Admins</option>
+              <option>Beta Testers</option>
+              <option>Group A</option>
+            </select>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <label>Max Daily Points per User</label>
-          <input
-            type="number"
-            value={maxDailyPoints}
-            onChange={(e) => setMaxDailyPoints(parseInt(e.target.value))}
-            style={{ width: '100px' }}
-          />
-        </div>
+        {/* === Right Column: Media Upload === */}
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h3>Media Uploads</h3>
+          <div style={{
+            border: '2px dashed #ccc',
+            padding: '1rem',
+            borderRadius: '8px',
+            backgroundColor: '#f9f9f9',
+          }}>
+            <label style={{ fontWeight: 'bold', color: 'black' }}>Upload Icons / Banners / Assets</label>
+            <input type="file" accept="image/*" multiple onChange={handleUpload} style={{ marginTop: '0.5rem' }} />
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <label>Cooldown Between Challenges (hrs)</label>
-          <input
-            type="number"
-            value={challengeCooldown}
-            onChange={(e) => setChallengeCooldown(parseInt(e.target.value))}
-            style={{ width: '100px' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Push Notifications</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={pushNotifications}
-              onChange={() => setPushNotifications(!pushNotifications)}
-            />
-            <span className="slider"></span>
-          </label>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Email Notifications</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={emailNotifications}
-              onChange={() => setEmailNotifications(!emailNotifications)}
-            />
-            <span className="slider"></span>
-          </label>
+            {/* Preview thumbnails */}
+            {mediaFiles.length > 0 && (
+              <div style={{
+                marginTop: '1rem',
+                display: 'flex',
+                gap: '1rem',
+                overflowX: 'auto',
+                paddingBottom: '0.5rem'
+              }}>
+                {mediaFiles.map((file, idx) => (
+                  <div key={idx} style={{ position: 'relative' }}>
+  <img
+    src={URL.createObjectURL(file)}
+    alt={`upload-${idx}`}
+    style={{ height: '80px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #ccc' }}
+    onClick={() => setPreviewIndex(idx)}
+  />
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      setMediaFiles(prev => prev.filter((_, i) => i !== idx));
+    }}
+    title="Delete"
+style={{
+  position: 'absolute',
+  top: '-6px',
+  right: '-6px',
+  backgroundColor: '#f44336',
+  color: 'white',
+  border: 'none',
+  borderRadius: '50%',
+  width: '20px',
+  height: '20px',
+  fontSize: '14px',
+  textAlign: 'center',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 0,
+  lineHeight: 1,
+}}
+  >
+    x
+  </button>
+</div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Fullscreen preview modal */}
+      {previewIndex !== null && (
+        <div
+          onClick={handleClosePreview}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <img
+            src={URL.createObjectURL(mediaFiles[previewIndex])}
+            style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '8px' }}
+            alt="Full preview"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Toggle switch */
+function SettingToggle({ label, value, onChange }: { label: string, value: boolean, onChange: () => void }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <span>{label}</span>
+      <label className="switch">
+        <input type="checkbox" checked={value} onChange={onChange} />
+        <span className="slider"></span>
+      </label>
+    </div>
+  );
+}
+
+/* Slider input */
+function SettingSlider({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <label style={{ marginBottom: '0.3rem' }}>{label}</label>
+      <input type="range" min={1} max={100} value={value} onChange={(e) => onChange(parseInt(e.target.value))} />
+    </div>
+  );
+}
+
+/* Number input */
+function SettingInput({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <label>{label}</label>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value))}
+        style={{ width: '100px' }}
+      />
     </div>
   );
 }

@@ -1,39 +1,64 @@
+/* ========================
+   Root default styling
+   ======================== */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; /* Base font stack */
+  line-height: 1.5;              /* Line spacing */
+  font-weight: 400;              /* Default font weight */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light dark;      /* Supports both modes */
+  color: rgba(255, 255, 255, 0.87);       /* Default text color */
+  background-color: #242424;     /* Default background */
 
-  font-synthesis: none;
+  font-synthesis: none;          /* Prevents automatic font bold/italic */
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -moz-osx-font-smoothing: grayscale;    /* Better rendering on different platforms */
 }
+
+
+/* ========================
+   Link styling
+   ======================== */
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  color: #646cff;                /* Blue link color */
+  text-decoration: inherit;      /* No underline by default */
 }
+
 a:hover {
-  color: #535bf2;
+  color: #535bf2;                /* Slightly darker on hover */
 }
+
+
+/* ========================
+   Body defaults
+   ======================== */
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  display: flex;                 /* Flex to allow centering */
+  place-items: center;          /* Centers items in both axes */
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100vh;            /* Full viewport height */
 }
+
+
+/* ========================
+   Heading styling
+   ======================== */
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+
+
+/* ========================
+   Button base styles
+   ======================== */
 
 button {
   border-radius: 8px;
@@ -42,27 +67,36 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #1a1a1a;     /* Default dark background */
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
-  border-color: #646cff;
+  border-color: #646cff;         /* Blue border on hover */
 }
+
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto -webkit-focus-ring-color; /* Accessibility focus ring */
 }
+
+
+/* ========================
+   Light mode overrides
+   ======================== */
 
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
-    color: #747bff;
+    color: #747bff;              /* Lighter hover color for light mode */
   }
+
   button {
-    background-color: #f9f9f9;
+    background-color: #f9f9f9;   /* Light button background */
   }
 }

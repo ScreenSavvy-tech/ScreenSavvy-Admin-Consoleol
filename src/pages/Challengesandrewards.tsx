@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
+// Challenge type
 type Challenge = {
   id: number;
   title: string;
@@ -7,15 +8,17 @@ type Challenge = {
   goal: string;
   duration: string;
   points: number;
-  expiresAt: number;
+  expiresAt: number; // timestamp when challenge expires
 };
 
+// Reward type
 type Reward = {
   id: number;
   name: string;
   points: number;
 };
 
+// Utility to format remaining time as human-readable string
 const formatTimeLeft = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const days = Math.floor(totalSeconds / 86400);
@@ -26,6 +29,7 @@ const formatTimeLeft = (ms: number): string => {
 };
 
 function Challengesandrewards() {
+  // Challenge-related state
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [title, setTitle] = useState('');
   const [rules, setRules] = useState('');
@@ -34,14 +38,17 @@ function Challengesandrewards() {
   const [challengePoints, setChallengePoints] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
 
+  // Reward-related state
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [rewardName, setRewardName] = useState('');
   const [rewardPoints, setRewardPoints] = useState('');
   const [rewardEditId, setRewardEditId] = useState<number | null>(null);
 
+  // Timer + notification
   const [now, setNow] = useState(Date.now());
-  const notifiedIdsRef = useRef<number[]>([]);
+  const notifiedIdsRef = useRef<number[]>([]); // prevent duplicate notifications
 
+  // Load challenges + setup ticking timer + check expired challenges
   useEffect(() => {
     const saved = localStorage.getItem('challenges');
     if (saved) {
@@ -51,12 +58,15 @@ function Challengesandrewards() {
       } catch {}
     }
 
+    // Request push notification permission
     if ('Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
 
     const interval = setInterval(() => {
       setNow(Date.now());
+
+      // Remove expired challenges + show notifications
       setChallenges(prev => {
         const nowTime = Date.now();
         const active: Challenge[] = [];
@@ -85,18 +95,21 @@ function Challengesandrewards() {
     return () => clearInterval(interval);
   }, []);
 
+  // Send notification for expired challenge
   const showNotification = (challengeTitle: string) => {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(`Challenge expired: ${challengeTitle}`);
     }
   };
 
+  // Add new challenge or update existing
   const handleAddOrUpdate = () => {
     const points = parseInt(challengePoints);
     if (!title.trim() || isNaN(points)) return;
     const durationMs = parseDurationToMs(duration);
 
     if (editingId !== null) {
+      // Update mode
       setChallenges(prev => {
         const updated = prev.map(ch =>
           ch.id === editingId
@@ -108,6 +121,7 @@ function Challengesandrewards() {
       });
       setEditingId(null);
     } else {
+      // Add mode
       const newChallenge: Challenge = {
         id: Date.now(),
         title,
@@ -122,6 +136,7 @@ function Challengesandrewards() {
       localStorage.setItem('challenges', JSON.stringify(updatedChallenges));
     }
 
+    // Clear inputs
     setTitle('');
     setRules('');
     setGoal('');
@@ -195,6 +210,7 @@ function Challengesandrewards() {
     }
   };
 
+  // Parses durations like "1d 3h 20m" into milliseconds
   const parseDurationToMs = (durationStr: string): number => {
     const regex = /(\d+)([dhms])/g;
     let match;
@@ -212,11 +228,13 @@ function Challengesandrewards() {
     return ms;
   };
 
+  // Main JSX layout
   return (
     <div className="page-content">
       <h2 style={{ marginBottom: '1rem' }}>Challenges & Rewards</h2>
 
       <div style={{ display: 'flex', gap: '4rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        {/* Challenge Form + List */}
         <section style={{ marginBottom: '2rem', maxWidth: '600px' }}>
           <h3>{editingId ? 'Edit Challenge' : 'Create New Challenge'}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
@@ -233,6 +251,7 @@ function Challengesandrewards() {
             </div>
           </div>
 
+          {/* Challenge List */}
           {challenges.length > 0 && (
             <section style={{ marginTop: '3rem' }}>
               <h3>Existing Challenges</h3>
@@ -257,6 +276,7 @@ function Challengesandrewards() {
           )}
         </section>
 
+        {/* Reward Form + List */}
         <section style={{ maxWidth: '600px' }}>
           <h3>{rewardEditId ? 'Edit Reward' : 'Add Reward'}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
@@ -276,6 +296,7 @@ function Challengesandrewards() {
             </div>
           </div>
 
+          {/* Reward List */}
           {rewards.length > 0 && (
             <ul style={{ marginTop: '2rem' }}>
               {rewards.map(r => (
@@ -295,6 +316,7 @@ function Challengesandrewards() {
   );
 }
 
+// Shared button styles
 const btn = {
   padding: '0.5rem 1rem',
   background: '#61dafb',

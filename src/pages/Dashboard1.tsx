@@ -1,5 +1,11 @@
 import type { CSSProperties } from 'react';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell,
+  BarChart, Bar,
+} from 'recharts';
 
+// Main dashboard component
 function Dashboard1() {
   const stats = {
     totalUsers: 5,
@@ -8,7 +14,8 @@ function Dashboard1() {
     lastLoginPeak: '2025-07-10',
   };
 
-  const screenTimeTrends = [
+  // Data for charts
+  const screenTimeData = [
     { day: 'Mon', hours: 2.1 },
     { day: 'Tue', hours: 2.6 },
     { day: 'Wed', hours: 3.4 },
@@ -18,12 +25,27 @@ function Dashboard1() {
     { day: 'Sun', hours: 1.7 },
   ];
 
+  const challengeData = [
+    { name: 'Focus', value: 40 },
+    { name: 'Health', value: 30 },
+    { name: 'Social', value: 20 },
+    { name: 'Other', value: 10 },
+  ];
+
+  const barData = [
+    { week: 'Week 1', redemptions: 12 },
+    { week: 'Week 2', redemptions: 18 },
+    { week: 'Week 3', redemptions: 9 },
+    { week: 'Week 4', redemptions: 15 },
+  ];
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
   return (
     <div className="page-content">
-      {/* Dashboard Header */}
       <h2 style={{ marginBottom: '1rem' }}>Admin Dashboard</h2>
 
-      {/* Stat Widgets */}
+      {/* Summary stat boxes */}
       <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <StatBox title="Total Users" value={stats.totalUsers} />
         <StatBox title="Active Users" value={stats.activeUsers} />
@@ -31,53 +53,68 @@ function Dashboard1() {
         <StatBox title="Last Login Peak" value={stats.lastLoginPeak} />
       </div>
 
-      {/* Chart Section */}
-      <h3 style={{ marginBottom: '1rem' }}>Daily Screen Time Trends</h3>
-      <div style={{
-        background: 'white',
-        padding: '1rem',
-        borderRadius: '8px',
-        border: '1px solid #ddd',
-        maxWidth: '600px',
-        color: 'black'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-          {/* Y-axis */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            height: '150px',
-            marginRight: '1rem',
-            fontSize: '0.8rem',
-            color: '#666'
-          }}>
-            {[5, 4, 3, 2, 1, 0].map(h => (
-              <div key={h}>{h}h</div>
-            ))}
-          </div>
+      <h3 style={{ marginBottom: '1rem' }}>Analytics & Reporting</h3>
 
-          {/* Bars */}
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', height: '150px' }}>
-            {screenTimeTrends.map((day, index) => (
-              <div key={index} style={{ textAlign: 'center' }}>
-                <div style={{
-                  background: '#61dafb',
-                  height: `${day.hours * 25}px`,
-                  width: '30px',
-                  borderRadius: '4px',
-                }} />
-                <div style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}>{day.day}</div>
-              </div>
-            ))}
-          </div>
+      {/* Chart section */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '1000px', width: '100%' }}>
+        {/* Line Chart */}
+        <div style={chartContainerStyle}>
+          <h4 style={{ color: '#333' }}>Daily Screen Time</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={screenTimeData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="hours" stroke="#8884d8" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Pie Chart */}
+        <div style={chartContainerStyle}>
+          <h4 style={{ color: '#333' }}>Challenge Type Distribution</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={challengeData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={60}
+                fill="#8884d8"
+                label
+              >
+                {challengeData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Bar Chart */}
+        <div style={chartContainerStyle}>
+          <h4 style={{ color: '#333' }}>Weekly Reward Redemptions</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={barData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="redemptions" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
   );
 }
 
-function StatBox({ title, value }: { title: string, value: string | number }) {
+// Box component for displaying a single stat
+function StatBox({ title, value }: { title: string; value: string | number }) {
   return (
     <div style={statBox}>
       <div style={statTitle}>{title}</div>
@@ -86,13 +123,14 @@ function StatBox({ title, value }: { title: string, value: string | number }) {
   );
 }
 
+// Style objects
 const statBox: CSSProperties = {
   background: '#f0f0f0',
   padding: '1rem',
   borderRadius: '8px',
   minWidth: '150px',
   textAlign: 'center',
-  color: 'black', // ← force black text
+  color: 'black',
 };
 
 const statTitle: CSSProperties = {
@@ -104,6 +142,13 @@ const statTitle: CSSProperties = {
 const statValue: CSSProperties = {
   fontSize: '1.4rem',
   fontWeight: 'bold',
+};
+
+const chartContainerStyle: CSSProperties = {
+  background: 'white',
+  padding: '1rem',
+  borderRadius: '8px',
+  border: '1px solid #ddd',
 };
 
 export default Dashboard1;

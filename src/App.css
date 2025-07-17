@@ -1,59 +1,76 @@
-/* Theme basics */
+/* ========================
+   Theme basics (light/dark)
+   ======================== */
+
+/* Base body setup */
 body {
   margin: 0;
   font-family: sans-serif;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.3s, color 0.3s; /* Smooth theme switch */
 }
 
+/* Light mode background and text color */
 body.light-mode {
   background-color: #ffffff;
   color: #000000;
 }
 
+/* Dark mode background and text color */
 body.dark-mode {
   background-color: #121212;
   color: #f0f0f0;
 }
 
-/* Nav bar fix */
+
+/* ========================
+   Navigation Bar Styling
+   ======================== */
+
+/* Main navigation bar container */
 .nav-bar {
-  position: fixed;
+  position: fixed;           /* Stay at the top */
   top: 0;
   left: 0;
-  width: 100vw;
-  z-index: 1000;
+  width: 100vw;              /* Full width of viewport */
+  z-index: 1000;             /* On top of other elements */
   display: flex;
-  justify-content: center;
-  gap: 2rem;
-  padding: 1rem 0;
-  background: #282c34;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  justify-content: center;   /* Center nav items */
+  gap: 2rem;                 /* Space between links */
+  padding: 1rem 0;           /* Vertical padding */
+  background: #282c34;       /* Default dark background */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Light shadow */
 }
 
+/* Light mode nav background and text color */
 body.light-mode .nav-bar {
   background-color: #f0f0f0;
   color: black;
 }
 
+/* Dark mode nav background and text color */
 body.dark-mode .nav-bar {
   background-color: #1c1c1c;
   color: white;
 }
 
+/* Nav links (universal style) */
 .nav-link {
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: bold;
 }
 
+/* Light mode nav link color */
 body.light-mode .nav-link {
   color: #111;
 }
 
+/* Dark mode nav link color */
 body.dark-mode .nav-link {
   color: #eee;
 }
 
+/* Redundant duplicate entries (could be cleaned up) */
 body.dark-mode .nav-link {
   color: #eee;
 }
@@ -62,30 +79,47 @@ body.light-mode .nav-link {
   color: #111;
 }
 
+
+/* =======================
+   Page Content Container
+   ======================= */
+
+/* Page wrapper beneath nav */
 .page-content {
-  padding-top: 6rem;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem;
+  overflow-y: auto;
+  height: calc(100vh - 60px); /* Fits full height minus nav bar */
+  box-sizing: border-box;
 }
 
-/* Buttons */
+
+/* =======================
+   Button Styling
+   ======================= */
+
+/* Basic button look */
 button {
   padding: 0.5rem 1rem;
   font-weight: bold;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  background: #61dafb;
+  background: #61dafb;     /* Light blue */
   color: #000;
 }
 
+/* Dark mode button color override */
 body.dark-mode button {
   background: #1e88e5;
   color: white;
 }
 
-/* Inputs + selects */
+
+/* ========================
+   Input & Select Elements
+   ======================== */
+
+/* Default styling for inputs and selects */
 input,
 select {
   padding: 0.5rem;
@@ -93,6 +127,7 @@ select {
   border-radius: 4px;
 }
 
+/* Dark mode overrides for inputs/selects */
 body.dark-mode input,
 body.dark-mode select {
   background: #222;
@@ -100,20 +135,31 @@ body.dark-mode select {
   border: 1px solid #444;
 }
 
-/* Labels */
+
+/* ==========================
+   Text Elements (Labels etc.)
+   ========================== */
+
+/* Dark mode text for labels, paragraphs, spans */
 body.dark-mode label,
 body.dark-mode p,
 body.dark-mode span {
   color: #ddd;
 }
 
+/* Light mode text for the same elements */
 body.light-mode label,
 body.light-mode p,
 body.light-mode span {
   color: #111;
 }
 
-/* Toggle switch style */
+
+/* ==========================
+   Toggle Switch Component
+   ========================== */
+
+/* Outer container */
 .switch {
   position: relative;
   display: inline-block;
@@ -121,12 +167,14 @@ body.light-mode span {
   height: 20px;
 }
 
+/* Hide default checkbox input */
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
+/* The background track */
 .slider {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -135,6 +183,7 @@ body.light-mode span {
   transition: 0.3s;
 }
 
+/* The circle knob */
 .slider:before {
   content: "";
   position: absolute;
@@ -147,6 +196,7 @@ body.light-mode span {
   border-radius: 50%;
 }
 
+/* When switch is checked */
 input:checked + .slider {
   background-color: #2196F3;
 }
