@@ -1,36 +1,30 @@
 export const AppColors = {
-  // Core
-  primary: '#FF6B00',
-  secondary: '#1F1F1F',
-  accentPurple: '#8A2BE2',
-  accentOrange: '#FF8042',
+  // Backgrounds
+  background: '#121212',        // Dark mode background
+  backgroundLight: '#f9f9f9',   // Light mode background
 
-  // Status
-  success: '#4CAF50',
-  warning: '#FFC107',
-  error: '#F44336',
-
-  // Surfaces
-  surfaceDark: '#2A2A2A',
-  backgroundDark: '#1A1A1A',
-  backgroundLight: '#f9f9f9', // light gray for panels/backgrounds
-  background: '#FAFAFA', // <-- Added general background
-  surfaceLight: '#FFFFFF',
-  light: '#F5F5F5',
-
-  // Text
-  textPrimary: '#ffffffff',
-  textSecondary: '#AAAAAA',
-  textOnPrimary: '#FFFFFF',
-  textOnError: '#FFFFFF',
+  // Surfaces (cards, containers)
+  surface: '#1e1e1e',           // Dark mode surface
+  surfaceLight: '#ffffff',      // Light mode surface
 
   // Borders
-  borderLight: '#E0E0E0',
+  border: '#444',
+  borderLight: '#ddd',
 
-  // Chart Colors
-  blue: '#0088FE',
-  teal: '#00C49F',
-  yellow: '#FFBB28',
-  orange: '#FF8042',
-  green: '#4CAF50',
+  // Text
+  textPrimary: '#ffffff',
+  textSecondary: '#aaaaaa',
+  textOnPrimary: '#ffffff',
+  textOnError: '#ffffff',
+
+  // Accents
+  primary: '#4a90e2',
+  accentPurple: '#9b59b6',
+  blue: '#3498db',
+  teal: '#1abc9c',
+  yellow: '#f1c40f',
+  orange: '#e67e22',
+  green: '#2ecc71',
+  error: '#e74c3c',
+  warning: '#f39c12',
 };

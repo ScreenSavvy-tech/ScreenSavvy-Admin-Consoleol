@@ -4,11 +4,6 @@ import {
   PieChart, Pie, Cell,
   BarChart, Bar,
 } from 'recharts';
-import { AppColors } from '../style/app_colors';
-import { AppTextStyles } from '../style/app_text_styles';
-import { AppSpacing } from '../style/app_spacing';
-import { AppRadius } from '../style/app_radius';
-import { AppShadows } from '../style/app_shadows';
 
 // Main dashboard component
 function Dashboard1() {
@@ -44,76 +39,74 @@ function Dashboard1() {
     { week: 'Week 4', redemptions: 15 },
   ];
 
-  const COLORS = [AppColors.blue, AppColors.teal, AppColors.yellow, AppColors.orange];
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
-    <div className="page-content" style={{ backgroundColor: AppColors.background, color: AppColors.textPrimary, padding: AppSpacing.screenPadding, minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
-      <h2 style={{ ...AppTextStyles.headingLarge, marginBottom: AppSpacing.medium, color: AppColors.textPrimary }}>Admin Dashboard</h2>
+    <div className="page-content">
+      <h2 style={{ marginBottom: '1rem' }}>Admin Dashboard</h2>
 
       {/* Summary stat boxes */}
-      <div style={{ display: 'flex', gap: AppSpacing.large, marginBottom: AppSpacing.xlarge, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <StatBox title="Total Users" value={stats.totalUsers} />
         <StatBox title="Active Users" value={stats.activeUsers} />
         <StatBox title="Avg Screen Time" value={stats.avgScreenTime} />
         <StatBox title="Last Login Peak" value={stats.lastLoginPeak} />
       </div>
 
-      <h3 style={{ ...AppTextStyles.headingMedium, marginBottom: AppSpacing.medium, color: AppColors.textPrimary }}>Analytics & Reporting</h3>
+      <h3 style={{ marginBottom: '1rem' }}>Analytics & Reporting</h3>
 
       {/* Chart section */}
-      <div style={{ maxWidth: '100%', overflowX: 'auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: AppSpacing.xlarge, maxWidth: '1000px', width: '100%' }}>
-          {/* Line Chart */}
-          <div style={chartContainerStyle}>
-            <h4 style={{ ...AppTextStyles.headingSmall, color: AppColors.textPrimary }}>Daily Screen Time</h4>
-            <ResponsiveContainer width="100%" height={300} style={{ maxWidth: '100%' }}>
-              <LineChart data={screenTimeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" stroke={AppColors.textPrimary} />
-                <YAxis stroke={AppColors.textPrimary} />
-                <Tooltip contentStyle={{ backgroundColor: AppColors.surfaceLight, color: AppColors.textPrimary, border: '1px solid ' + AppColors.borderLight }} />
-                <Line type="monotone" dataKey="hours" stroke={AppColors.accentPurple} strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '1000px', width: '100%' }}>
+        {/* Line Chart */}
+        <div style={chartContainerStyle}>
+          <h4 style={{ color: '#333' }}>Daily Screen Time</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={screenTimeData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="hours" stroke="#8884d8" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-          {/* Pie Chart */}
-          <div style={chartContainerStyle}>
-            <h4 style={{ ...AppTextStyles.headingSmall, color: AppColors.textPrimary }}>Challenge Type Distribution</h4>
-            <ResponsiveContainer width="100%" height={300} style={{ maxWidth: '100%' }}>
-              <PieChart>
-                <Pie
-                  data={challengeData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={60}
-                  fill={AppColors.accentPurple}
-                  label
-                >
-                  {challengeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ backgroundColor: AppColors.surfaceLight, color: AppColors.textPrimary, border: '1px solid ' + AppColors.borderLight }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+        {/* Pie Chart */}
+        <div style={chartContainerStyle}>
+          <h4 style={{ color: '#333' }}>Challenge Type Distribution</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={challengeData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={60}
+                fill="#8884d8"
+                label
+              >
+                {challengeData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
 
-          {/* Bar Chart */}
-          <div style={chartContainerStyle}>
-            <h4 style={{ ...AppTextStyles.headingSmall, color: AppColors.textPrimary }}>Weekly Reward Redemptions</h4>
-            <ResponsiveContainer width="100%" height={300} style={{ maxWidth: '100%' }}>
-              <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" stroke={AppColors.textPrimary} />
-                <YAxis stroke={AppColors.textPrimary} />
-                <Tooltip contentStyle={{ backgroundColor: AppColors.surfaceLight, color: AppColors.textPrimary, border: '1px solid ' + AppColors.borderLight }} />
-                <Bar dataKey="redemptions" fill={AppColors.green} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        {/* Bar Chart */}
+        <div style={chartContainerStyle}>
+          <h4 style={{ color: '#333' }}>Weekly Reward Redemptions</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={barData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="redemptions" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
@@ -132,35 +125,30 @@ function StatBox({ title, value }: { title: string; value: string | number }) {
 
 // Style objects
 const statBox: CSSProperties = {
-  background: AppColors.surfaceLight,
-  padding: AppSpacing.large,
-  borderRadius: AppRadius.medium,
+  background: '#f0f0f0',
+  padding: '1rem',
+  borderRadius: '8px',
   minWidth: '150px',
   textAlign: 'center',
-  color: AppColors.textPrimary,
-  boxShadow: AppShadows.softShadowDark,
+  color: 'black',
 };
 
 const statTitle: CSSProperties = {
-  ...AppTextStyles.bodySmall,
-  color: AppColors.textSecondary,
-  marginBottom: AppSpacing.xsmall,
+  fontSize: '0.9rem',
+  color: '#555',
+  marginBottom: '0.3rem',
 };
 
 const statValue: CSSProperties = {
-  ...AppTextStyles.headingMedium,
+  fontSize: '1.4rem',
   fontWeight: 'bold',
 };
 
 const chartContainerStyle: CSSProperties = {
-  background: AppColors.surfaceLight,
-  padding: AppSpacing.large,
-  borderRadius: AppRadius.medium,
-  border: `1px solid ${AppColors.borderLight}`,
-  boxShadow: AppShadows.softShadowDark,
-  maxWidth: '100%',
-  overflow: 'hidden',
-  width: '100%',
+  background: 'white',
+  padding: '1rem',
+  borderRadius: '8px',
+  border: '1px solid #ddd',
 };
 
 export default Dashboard1;

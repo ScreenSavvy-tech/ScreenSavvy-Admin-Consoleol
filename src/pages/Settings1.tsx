@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
-import { AppColors } from '../style/app_colors';
-import { AppSpacing } from '../style/app_spacing';
-import { AppRadius } from '../style/app_radius';
-import { AppTextStyles } from '../style/app_text_styles';
-import { AppShadows } from '../style/app_shadows';
 
 function Settings() {
+  // === General Settings ===
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(() => localStorage.getItem('maintenance') === 'true');
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
@@ -21,6 +17,7 @@ function Settings() {
   const [minAppVersion, setMinAppVersion] = useState('1.0.0');
   const [selectedCohort, setSelectedCohort] = useState('All Users');
 
+  // === Uploads ===
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
@@ -46,24 +43,16 @@ function Settings() {
   return (
     <div className="page-content">
       {isMaintenanceMode && (
-        <div
-          style={{
-            backgroundColor: AppColors.warning,
-            padding: AppSpacing.small,
-            marginBottom: AppSpacing.medium,
-            textAlign: 'center',
-            fontWeight: 'bold',
-            borderRadius: AppRadius.small
-          }}
-        >
+        <div style={{ backgroundColor: 'orange', padding: '0.5rem', marginBottom: '1rem', textAlign: 'center', fontWeight: 'bold' }}>
           Maintenance Mode Active
         </div>
       )}
 
-      <h2 style={{ ...AppTextStyles.headingLarge, marginBottom: AppSpacing.medium }}>Settings</h2>
+      <h2 style={{ marginBottom: '1rem' }}>Settings</h2>
 
-      <div style={{ display: 'flex', flexDirection: 'row', gap: AppSpacing.large, flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: 300, display: 'flex', flexDirection: 'column', gap: AppSpacing.medium, maxWidth: 500 }}>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', flexWrap: 'wrap' }}>
+        {/* === Left Column === */}
+        <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '500px' }}>
           <SettingToggle label="Light/Dark Theme" value={isDarkMode} onChange={() => setIsDarkMode(!isDarkMode)} />
           <SettingToggle
             label="Maintenance Mode"
@@ -75,7 +64,7 @@ function Settings() {
           />
 
           {showPasswordPrompt && (
-            <div style={{ display: 'flex', gap: AppSpacing.xsmall, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <input
                 type="password"
                 placeholder="Enter admin password"
@@ -92,9 +81,7 @@ function Settings() {
                     alert('Incorrect password.');
                   }
                 }}
-              >
-                Confirm
-              </button>
+              >Confirm</button>
               <button onClick={() => { setShowPasswordPrompt(false); setAdminPassword(''); }}>Cancel</button>
             </div>
           )}
@@ -106,16 +93,16 @@ function Settings() {
           <SettingToggle label="Email Notifications" value={emailNotifications} onChange={() => setEmailNotifications(!emailNotifications)} />
 
           <hr />
-          <h3 style={AppTextStyles.headingMedium}>Feature Flags & Version Control</h3>
+          <h3>Feature Flags & Version Control</h3>
           <SettingToggle label="Enable Rewards Feature" value={rewardsEnabled} onChange={() => setRewardsEnabled(!rewardsEnabled)} />
           <SettingToggle label="Enable Challenges Feature" value={challengesEnabled} onChange={() => setChallengesEnabled(!challengesEnabled)} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <label>Min App Version Required</label>
-            <input type="text" value={minAppVersion} onChange={(e) => setMinAppVersion(e.target.value)} style={{ width: 100 }} />
+            <input type="text" value={minAppVersion} onChange={(e) => setMinAppVersion(e.target.value)} style={{ width: '100px' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <label>Target Cohort</label>
-            <select value={selectedCohort} onChange={(e) => setSelectedCohort(e.target.value)} style={{ width: 150 }}>
+            <select value={selectedCohort} onChange={(e) => setSelectedCohort(e.target.value)} style={{ width: '150px' }}>
               <option>All Users</option>
               <option>Admins</option>
               <option>Beta Testers</option>
@@ -124,67 +111,64 @@ function Settings() {
           </div>
         </div>
 
-        <div style={{ flex: 1, minWidth: 300 }}>
-          <h3 style={AppTextStyles.headingMedium}>Media Uploads</h3>
-          <div
-            style={{
-              border: `2px dashed ${AppColors.borderLight}`,
-              padding: AppSpacing.medium,
-              borderRadius: AppRadius.medium,
-              backgroundColor: AppColors.backgroundLight,
-              boxShadow: AppShadows.light,
-            }}
-          >
-            <label style={{ fontWeight: 'bold', color: AppColors.textPrimary }}>Upload Icons / Banners / Assets</label>
-            <input type="file" accept="image/*" multiple onChange={handleUpload} style={{ marginTop: AppSpacing.xsmall }} />
+        {/* === Right Column: Media Upload === */}
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h3>Media Uploads</h3>
+          <div style={{
+            border: '2px dashed #ccc',
+            padding: '1rem',
+            borderRadius: '8px',
+            backgroundColor: '#f9f9f9',
+          }}>
+            <label style={{ fontWeight: 'bold', color: 'black' }}>Upload Icons / Banners / Assets</label>
+            <input type="file" accept="image/*" multiple onChange={handleUpload} style={{ marginTop: '0.5rem' }} />
 
+            {/* Preview thumbnails */}
             {mediaFiles.length > 0 && (
-              <div
-                style={{
-                  marginTop: AppSpacing.medium,
-                  display: 'flex',
-                  gap: AppSpacing.medium,
-                  overflowX: 'auto',
-                  paddingBottom: AppSpacing.xsmall
-                }}
-              >
+              <div style={{
+                marginTop: '1rem',
+                display: 'flex',
+                gap: '1rem',
+                overflowX: 'auto',
+                paddingBottom: '0.5rem'
+              }}>
                 {mediaFiles.map((file, idx) => (
                   <div key={idx} style={{ position: 'relative' }}>
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`upload-${idx}`}
-                      style={{ height: 80, borderRadius: AppRadius.small, cursor: 'pointer', border: `1px solid ${AppColors.borderLight}` }}
-                      onClick={() => setPreviewIndex(idx)}
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMediaFiles(prev => prev.filter((_, i) => i !== idx));
-                      }}
-                      title="Delete"
-                      style={{
-                        position: 'absolute',
-                        top: -6,
-                        right: -6,
-                        backgroundColor: AppColors.error,
-                        color: AppColors.textOnError,
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: 20,
-                        height: 20,
-                        fontSize: 14,
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                        lineHeight: 1,
-                      }}
-                    >
-                      x
-                    </button>
-                  </div>
+  <img
+    src={URL.createObjectURL(file)}
+    alt={`upload-${idx}`}
+    style={{ height: '80px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #ccc' }}
+    onClick={() => setPreviewIndex(idx)}
+  />
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      setMediaFiles(prev => prev.filter((_, i) => i !== idx));
+    }}
+    title="Delete"
+style={{
+  position: 'absolute',
+  top: '-6px',
+  right: '-6px',
+  backgroundColor: '#f44336',
+  color: 'white',
+  border: 'none',
+  borderRadius: '50%',
+  width: '20px',
+  height: '20px',
+  fontSize: '14px',
+  textAlign: 'center',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 0,
+  lineHeight: 1,
+}}
+  >
+    x
+  </button>
+</div>
                 ))}
               </div>
             )}
@@ -192,6 +176,7 @@ function Settings() {
         </div>
       </div>
 
+      {/* Fullscreen preview modal */}
       {previewIndex !== null && (
         <div
           onClick={handleClosePreview}
@@ -207,7 +192,7 @@ function Settings() {
         >
           <img
             src={URL.createObjectURL(mediaFiles[previewIndex])}
-            style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: AppRadius.medium }}
+            style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '8px' }}
             alt="Full preview"
           />
         </div>
@@ -216,6 +201,7 @@ function Settings() {
   );
 }
 
+/* Toggle switch */
 function SettingToggle({ label, value, onChange }: { label: string, value: boolean, onChange: () => void }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -228,15 +214,17 @@ function SettingToggle({ label, value, onChange }: { label: string, value: boole
   );
 }
 
+/* Slider input */
 function SettingSlider({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <label style={{ marginBottom: AppSpacing.xsmall }}>{label}</label>
+      <label style={{ marginBottom: '0.3rem' }}>{label}</label>
       <input type="range" min={1} max={100} value={value} onChange={(e) => onChange(parseInt(e.target.value))} />
     </div>
   );
 }
 
+/* Number input */
 function SettingInput({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -245,7 +233,7 @@ function SettingInput({ label, value, onChange }: { label: string, value: number
         type="number"
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value))}
-        style={{ width: 100 }}
+        style={{ width: '100px' }}
       />
     </div>
   );
